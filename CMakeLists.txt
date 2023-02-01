@@ -7,4 +7,4 @@ link_directories(lib)
 add_executable(RauchCasino main.cpp)
 
 target_include_directories(RauchCasino PUBLIC include)
-target_link_libraries(RauchCasino libsfml-window.a libsfml-system.a libsfml-graphics.a libsfml-audio.a -static-libgcc -static-libstdc++)
+target_link_libraries(RauchCasino libsfml-window.a libsfml-system.a libsfml-graphics.a libsfml-audio.a)

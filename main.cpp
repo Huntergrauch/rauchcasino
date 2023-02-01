@@ -244,7 +244,7 @@ int GetBlackjackHandValue(std::vector<Card> hand)
     {
         if(hand.at(c).Value == 0)
         {
-            if((HandValue + 11) < 21)
+            if((HandValue + 11) <= 21)
             {
                 HandValue += 11;
             }
