@@ -1,1 +1,0 @@
-  -LC:/Users/Hunte/OneDrive/Pictures/DOCUME~1/Code/MYPROJ~1/RAUCHC~1/lib  -Wl,-Bstatic -lsfml-window -lsfml-system -lsfml-graphics -lsfml-audio -Wl,-Bdynamic -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
