@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
@@ -297,6 +298,27 @@ class RectButton
 
 int main()
 {
+    //try to open casino.data
+    std::ifstream ChipDataFile("casino.data");
+    int Chips = 0;
+    if(ChipDataFile.good())//if casino.data exists read it
+    {
+        std::string filestring;
+        std::getline(ChipDataFile,filestring);
+        Chips = std::stoi(filestring);
+        std::cout << "Chips Loaded: " << Chips << std::endl;
+        ChipDataFile.close();
+    }
+    else //if no casino.data exists create one
+    {
+        std::cout << "Creating new casino.data" << std::endl;
+        std::ofstream NewChipDataFile("casino.data");
+        NewChipDataFile << "500";
+        NewChipDataFile.close();
+        Chips = 500;
+    }
+    if(ChipDataFile.is_open())ChipDataFile.close();
+
     font.loadFromFile(".\\resources\\LinLibertine_R.ttf");
     DrawCardSoundData.loadFromFile(".\\resources\\drawcard.wav");
     ShuffleCardSoundData.loadFromFile(".\\resources\\shuffle.wav");
@@ -339,6 +361,13 @@ int main()
     BlackjackButton.ButtonText.setFillColor(sf::Color::Black);
     bool Blackjack = false;
     bool BlackjackRestart = false;
+    sf::Text ChipText;
+    ChipText.setFont(font);
+    ChipText.setFillColor(sf::Color::Black);
+    ChipText.setCharacterSize(36);
+    ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 64.0f));
+    ChipText.setStyle(sf::Text::Bold);
+    ChipText.setString("Chips: " + std::to_string(Chips));
 
     sf::Sound DrawCardSound;
     DrawCardSound.setBuffer(DrawCardSoundData);
@@ -375,6 +404,7 @@ int main()
                     });
                     TitleSprite.setPosition(sf::Vector2f(static_cast<float>(event.size.width) / 2.0f, 200.0f));
                     BlackjackButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 60.0f, 360.0f));
+                    ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 64.0f));
                     break;
                 // we don't process other types of events
                 default:
@@ -388,6 +418,9 @@ int main()
             bool Stood = false;
             bool Hit = false;
             bool DealerStood = false;
+            int Bet = 10;
+            if(Chips > 10)Chips -= Bet;
+            ChipText.setString("Chips: " + std::to_string(Chips));
             //0 = Game in progress, 1 = Win, 2 = Blackjack, 3 = Tie, 4 = Lose
             int GameOver = 0;
             Deck deck;
@@ -411,7 +444,7 @@ int main()
             ControlsText.setFont(font);
             ControlsText.setFillColor(sf::Color::Black);
             ControlsText.setCharacterSize(32);
-            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 180.0f));
+            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 225.0f));
             ControlsText.setString("Press H to Hit\nPress S to Stay\nPress Esc to go back to menu\nPress R to restart Blackjack");
 
             sf::Text DealerValueText;
@@ -486,7 +519,8 @@ int main()
                             BlackjackButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 60.0f, 360.0f));
                             GameOverTextBox.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 200.0f, 400.0f));
                             GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 180.0f, 432.0f));
-                            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 180.0f));
+                            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 225.0f));
+                            ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 64.0f));
                             break;
                         // we don't process other types of events
                         default:
@@ -501,6 +535,8 @@ int main()
                         {
                             std::cout << "Blackjack tie" << std::endl;
                             GameOver = 3;
+                            Chips += Bet;
+                            ChipText.setString("Chips: " + std::to_string(Chips));
                         }
                         else
                         {
@@ -512,6 +548,8 @@ int main()
                     {
                         std::cout << "Player Blackjack win" << std::endl;
                         GameOver = 2;
+                        Chips += (Bet * 2.5);
+                        ChipText.setString("Chips: " + std::to_string(Chips));
                     }
                     if(Hit)
                     {
@@ -534,11 +572,15 @@ int main()
                             {
                                 std::cout << "Player win, stood on higher value" << std::endl;
                                 GameOver = 1;
+                                Chips += (Bet * 2);
+                                ChipText.setString("Chips: " + std::to_string(Chips));
                             }
                             if(GetBlackjackHandValue(DealerHand) == GetBlackjackHandValue(PlayerHand))
                             {
                                 std::cout << "Tie, stood on same value" << std::endl;
                                 GameOver = 3;
+                                Chips += Bet;
+                                ChipText.setString("Chips: " + std::to_string(Chips));
                             }
                         }
                         if(GetBlackjackHandValue(DealerHand) < 17)
@@ -550,6 +592,8 @@ int main()
                         {
                             std::cout << "Player win, Dealer bust" << std::endl;
                             GameOver = 1;
+                            Chips += (Bet * 2);
+                            ChipText.setString("Chips: " + std::to_string(Chips));
                         }
                         if(GetBlackjackHandValue(DealerHand) >= 17)
                         {
@@ -612,6 +656,7 @@ int main()
                     window.draw(GameOverText);
                 }
                 window.draw(ControlsText);
+                window.draw(ChipText);
 
                 // end the current frame
                 window.display();
@@ -623,11 +668,15 @@ int main()
         window.draw(background);
         window.draw(TitleSprite);
         BlackjackButton.DrawButton();
+        window.draw(ChipText);
 
 
         // end the current frame
         window.display();
     }
-
+    std::cout << "Saving casino.data" << std::endl;
+    std::ofstream NewChipDataFile("casino.data");
+    NewChipDataFile << Chips;
+    NewChipDataFile.close();
     return 0;
 }
