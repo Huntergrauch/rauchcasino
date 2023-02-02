@@ -485,7 +485,7 @@ int main()
                             TitleSprite.setPosition(sf::Vector2f(static_cast<float>(event.size.width) / 2.0f, 200.0f));
                             BlackjackButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 60.0f, 360.0f));
                             GameOverTextBox.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 200.0f, 400.0f));
-                            GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 200.0f, 400.0f));
+                            GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 180.0f, 432.0f));
                             ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 180.0f));
                             break;
                         // we don't process other types of events
