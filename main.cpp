@@ -256,6 +256,8 @@ int GetBlackjackHandValue(std::vector<Card> hand)
 }
 class RectButton
 {
+    private:
+    bool PrevButtonState = false;
     public:
     sf::RectangleShape ButtonRect;
     sf::Vector2f Position;
@@ -281,7 +283,7 @@ class RectButton
         window.draw(ButtonRect);
         window.draw(ButtonText);
     }
-    bool IsButtonPressed()
+    bool IsButtonPressed(bool allowrepeat = false)
     {
         ButtonRect.setPosition(Position);
         ButtonRect.setSize(Size);
@@ -290,9 +292,18 @@ class RectButton
 
         if(ButtonRect.getGlobalBounds().contains(MousePosition.x,MousePosition.y) && IsMousePressed)
         {
-            return true;
+            if(allowrepeat)return true;
+            if(!PrevButtonState && !allowrepeat)
+            {
+                PrevButtonState = true;
+                return true;
+            }
         }
-        else return false;
+        else 
+        {
+            PrevButtonState = false;
+            return false;
+        }
     }
 };
 
@@ -319,7 +330,7 @@ int main()
     }
     if(ChipDataFile.is_open())ChipDataFile.close();
 
-    font.loadFromFile(".\\resources\\LinLibertine_R.ttf");
+    font.loadFromFile(".\\resources\\OldSansBlack.ttf");
     DrawCardSoundData.loadFromFile(".\\resources\\drawcard.wav");
     ShuffleCardSoundData.loadFromFile(".\\resources\\shuffle.wav");
     CardFaceTexture.loadFromFile(".\\resources\\cardface_blank.png");
@@ -356,7 +367,7 @@ int main()
 
     sf::View view = window.getDefaultView();
 
-    RectButton BlackjackButton(sf::Vector2f(120.0f,60.0f), sf::Vector2f(400.0f - 60.0f,360.0f), sf::Text("Blackjack", font));
+    RectButton BlackjackButton(sf::Vector2f(150.0f,80.0f), sf::Vector2f(400.0f - 60.0f,360.0f), sf::Text("Blackjack", font));
     BlackjackButton.ButtonRect.setFillColor(sf::Color::Yellow);
     BlackjackButton.ButtonText.setFillColor(sf::Color::Black);
     bool Blackjack = false;
@@ -366,7 +377,6 @@ int main()
     ChipText.setFillColor(sf::Color::Black);
     ChipText.setCharacterSize(36);
     ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 64.0f));
-    ChipText.setStyle(sf::Text::Bold);
     ChipText.setString("Chips: " + std::to_string(Chips));
 
     sf::Sound DrawCardSound;
@@ -440,13 +450,6 @@ int main()
             GameOverText.setCharacterSize(32);
             GameOverText.setStyle(sf::Text::Bold);
             GameOverText.setPosition(sf::Vector2f(static_cast<float>(window.getSize().x) / 2.0f - 180.0f, 432.0f));
-            sf::Text ControlsText;
-            ControlsText.setFont(font);
-            ControlsText.setFillColor(sf::Color::Black);
-            ControlsText.setCharacterSize(32);
-            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 225.0f));
-            ControlsText.setString("Press H to Hit\nPress S to Stay\nPress Esc to go back to menu\nPress R to restart Blackjack");
-
             sf::Text DealerValueText;
             DealerValueText.setFont(font);
             DealerValueText.setFillColor(sf::Color::Black);
@@ -457,6 +460,12 @@ int main()
             PlayerValueText.setFillColor(sf::Color::Black);
             PlayerValueText.setCharacterSize(25);
             PlayerValueText.setPosition(sf::Vector2f(320.0f, 410.0f));
+            RectButton HitButton(sf::Vector2f(100.0f,72.0f), sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 200.0f), sf::Text("Hit", font, 36));
+            HitButton.ButtonRect.setFillColor(sf::Color::Yellow);
+            HitButton.ButtonText.setFillColor(sf::Color::Black);
+            RectButton StayButton(sf::Vector2f(100.0f,72.0f), sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 300.0f), sf::Text("Stay", font, 36));
+            StayButton.ButtonRect.setFillColor(sf::Color::Yellow);
+            StayButton.ButtonText.setFillColor(sf::Color::Black);
 
             DealerHand.push_back(deck.DrawCard());
             DealerHand.push_back(deck.DrawCard());     
@@ -519,13 +528,27 @@ int main()
                             BlackjackButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 60.0f, 360.0f));
                             GameOverTextBox.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 200.0f, 400.0f));
                             GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 180.0f, 432.0f));
-                            ControlsText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 225.0f));
                             ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 64.0f));
+                            HitButton.Position = sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 200.0f);
+                            StayButton.Position = sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 300.0f);
                             break;
                         // we don't process other types of events
                         default:
                             break;
                     }
+                }
+                if(HitButton.IsButtonPressed())
+                {
+                    if(deck.Cards.size() > 0 && !Stood && (GameOver == 0))
+                        {
+                            PlayerHand.push_back(deck.DrawCard());
+                            DrawCardSound.play();
+                            Hit = true;
+                        }
+                }
+                if(StayButton.IsButtonPressed())
+                {
+                    Stood = true;
                 }
                 if(GameOver == 0)
                 {
@@ -655,7 +678,9 @@ int main()
                     window.draw(GameOverTextBox);
                     window.draw(GameOverText);
                 }
-                window.draw(ControlsText);
+                HitButton.DrawButton();
+                StayButton.DrawButton();
+                //window.draw(ControlsText);
                 window.draw(ChipText);
 
                 // end the current frame
