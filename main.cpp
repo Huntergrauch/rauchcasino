@@ -449,7 +449,6 @@ int main()
             GameOverText.setFillColor(sf::Color::Black);
             GameOverText.setCharacterSize(32);
             GameOverText.setStyle(sf::Text::Bold);
-            GameOverText.setPosition(sf::Vector2f(static_cast<float>(window.getSize().x) / 2.0f - 180.0f, 432.0f));
             sf::Text DealerValueText;
             DealerValueText.setFont(font);
             DealerValueText.setFillColor(sf::Color::Black);
@@ -466,6 +465,12 @@ int main()
             RectButton StayButton(sf::Vector2f(100.0f,72.0f), sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 300.0f), sf::Text("Stay", font, 36));
             StayButton.ButtonRect.setFillColor(sf::Color::Yellow);
             StayButton.ButtonText.setFillColor(sf::Color::Black);
+            RectButton RestartButton(sf::Vector2f(100.0f,72.0f), sf::Vector2f(static_cast<float>(window.getSize().x) / 2.0f - 150.0f, 500.0f), sf::Text("Restart", font, 28));
+            RestartButton.ButtonRect.setFillColor(sf::Color::Yellow);
+            RestartButton.ButtonText.setFillColor(sf::Color::Black);
+            RectButton MenuButton(sf::Vector2f(100.0f,72.0f), sf::Vector2f(static_cast<float>(window.getSize().x) / 2.0f + 50.0f, 500.0f), sf::Text("Menu", font, 28));
+            MenuButton.ButtonRect.setFillColor(sf::Color::Yellow);
+            MenuButton.ButtonText.setFillColor(sf::Color::Black);
 
             DealerHand.push_back(deck.DrawCard());
             DealerHand.push_back(deck.DrawCard());     
@@ -527,7 +532,9 @@ int main()
                             TitleSprite.setPosition(sf::Vector2f(static_cast<float>(event.size.width) / 2.0f, 200.0f));
                             BlackjackButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 60.0f, 360.0f));
                             GameOverTextBox.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 200.0f, 400.0f));
-                            GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 180.0f, 432.0f));
+                            GameOverText.setPosition(sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - (GameOverText.getLocalBounds().width / 2.0f), 432.0f));
+                            RestartButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) - 150.0f, 500.0f));
+                            MenuButton.Position = (sf::Vector2f((static_cast<float>(event.size.width) / 2.0f) + 50.0f, 500.0f));
                             ChipText.setPosition(sf::Vector2f(50.0f, static_cast<float>(event.size.height) - 64.0f));
                             HitButton.Position = sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 200.0f);
                             StayButton.Position = sf::Vector2f(50.0f, static_cast<float>(window.getSize().y) - 300.0f);
@@ -660,27 +667,41 @@ int main()
                     case 0:
                     break;
                     case 1:
-                    GameOverText.setString("You Win!\nPress Esc to go menu,\nR to restart");
+                    GameOverText.setString("You Win!");
+                    GameOverText.setPosition(sf::Vector2f((static_cast<float>(window.getSize().x) / 2.0f) - (GameOverText.getLocalBounds().width / 2.0f), 432.0f));
                     break;
                     case 2:
-                    GameOverText.setString("Blackjack, You Win!\nPress Esc to go menu,\nR to restart");
+                    GameOverText.setString("Blackjack!");
+                    GameOverText.setPosition(sf::Vector2f((static_cast<float>(window.getSize().x) / 2.0f) - (GameOverText.getLocalBounds().width / 2.0f), 432.0f));
                     break;
                     case 3:
-                    GameOverText.setString("Tie\nPress Esc to go menu,\nR to restart");
+                    GameOverText.setString("Tie");
+                    GameOverText.setPosition(sf::Vector2f((static_cast<float>(window.getSize().x) / 2.0f) - (GameOverText.getLocalBounds().width / 2.0f), 432.0f));
                     break;
                     case 4:
-                    GameOverText.setString("You Lose\nPress Esc to go menu,\nR to restart");
+                    GameOverText.setString("You Lose");
+                    GameOverText.setPosition(sf::Vector2f((static_cast<float>(window.getSize().x) / 2.0f) - (GameOverText.getLocalBounds().width / 2.0f), 432.0f));
                     break;
 
                 }
                 if(GameOver != 0)
                 {
+                    if(RestartButton.IsButtonPressed())
+                    {
+                        Blackjack = false;
+                        BlackjackRestart = true;
+                    }
+                    if(MenuButton.IsButtonPressed())
+                    {
+                        Blackjack = false;
+                    }
                     window.draw(GameOverTextBox);
                     window.draw(GameOverText);
+                    RestartButton.DrawButton();
+                    MenuButton.DrawButton();
                 }
                 HitButton.DrawButton();
                 StayButton.DrawButton();
-                //window.draw(ControlsText);
                 window.draw(ChipText);
 
                 // end the current frame
